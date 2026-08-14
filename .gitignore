@@ -75,3 +75,15 @@ Thumbs.db
 # ============================================================
 
 tools/cloud-sql-proxy.exe
+
+# ===============================
+# Local API / PubSub Test Files
+# ===============================
+employee.json
+employee-update.json
+employee-event.json
+payment.json
+payment-update.json
+product.json
+product-update.json
+publish_test.py
