@@ -81,18 +81,19 @@ module "serverless_vpc_connector" {
 # =====================================================
 # Secret Manager
 # =====================================================
-
 module "secret_manager" {
 
   source = "./modules/secret-manager"
 
   project_id = var.project_id
 
-  secret_id    = "db-password"
-  secret_value = var.db_password
+  db_secret_id = "db-password"
+  db_password  = var.db_password
+
+  smtp_secret_id = "smtp-password"
+  smtp_password  = var.smtp_password
 
 }
-
 # =====================================================
 # Employee Service Account
 # =====================================================
@@ -187,7 +188,7 @@ module "employee_cloud_run" {
 
     DB_PASSWORD = {
 
-      secret  = module.secret_manager.secret_name
+      secret  = module.secret_manager.db_secret_name
       version = "latest"
 
     }
@@ -249,7 +250,7 @@ module "product_cloud_run" {
 
     DB_PASSWORD = {
 
-      secret = module.secret_manager.secret_name
+      secret = module.secret_manager.db_secret_name
 
       version = "latest"
 
@@ -305,7 +306,6 @@ module "notification_cloud_run" {
 
     SMTP_EMAIL = var.smtp_email
 
-    SMTP_PASSWORD = var.smtp_password
 
   }
 
@@ -313,7 +313,16 @@ module "notification_cloud_run" {
   # Secret Manager Environment Variables
   # -------------------------------------------------------
 
-  secret_environment_variables = {}
+  secret_environment_variables = {
+
+    SMTP_PASSWORD = {
+
+      secret  = module.secret_manager.smtp_secret_name
+      version = "latest"
+
+    }
+
+  }
 
   depends_on = [
     module.project_services,
@@ -372,7 +381,7 @@ module "order_cloud_run" {
 
     DB_PASSWORD = {
 
-      secret  = module.secret_manager.secret_name
+      secret  = module.secret_manager.db_secret_name
       version = "latest"
 
     }
@@ -439,7 +448,7 @@ module "payment_cloud_run" {
 
     DB_PASSWORD = {
 
-      secret = module.secret_manager.secret_name
+      secret = module.secret_manager.db_secret_name
 
       version = "latest"
 
@@ -473,6 +482,10 @@ module "pubsub" {
   payment_topic_name = var.payment_events_topic_name
 
   payment_subscription_name = var.payment_events_subscription_name
+
+  notification_push_endpoint = "https://notification-service-460587643228.asia-south1.run.app/pubsub"
+
+  payment_push_endpoint = "https://notification-service-3hf4oltfcq-el.a.run.app/pubsub"
 
   depends_on = [
     module.project_services

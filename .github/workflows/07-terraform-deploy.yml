@@ -38,11 +38,15 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
+      ##################################################
+      # Setup gcloud
+      ##################################################
+
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
 
       ##################################################
-      # Verify Authentication
+      # Verify Google Cloud Authentication
       ##################################################
 
       - name: Verify Google Authentication
@@ -72,14 +76,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      ##################################################
-      # Terraform Debug Logging
-      ##################################################
-
-      - name: Enable Terraform Debug
-        run: |
-          echo "TF_LOG=DEBUG" >> $GITHUB_ENV
 
       ##################################################
       # Terraform Format
@@ -114,19 +110,16 @@ jobs:
       ##################################################
 
       - name: Terraform Plan
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_smtp_password: ${{ secrets.SMTP_PASSWORD }}
         run: |
-          set -x
-
           terraform plan \
-            -var="db_password=${{ secrets.DB_PASSWORD }}" \
-            -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
             -out=tfplan \
             -no-color
 
-          echo "Terraform Exit Code: $?"
-
       ##################################################
-      # Upload Plan
+      # Upload Terraform Plan
       ##################################################
 
       - name: Upload Terraform Plan
