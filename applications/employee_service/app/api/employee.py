@@ -10,7 +10,6 @@ from ..schemas.employee_schema import (
     EmployeeResponseSchema,
 )
 
-
 employee_bp = Blueprint("employee", __name__)
 
 
@@ -44,11 +43,7 @@ def create_employee():
 
         if data is None:
             return (
-                jsonify(
-                    {
-                        "error": "Invalid JSON request body"
-                    }
-                ),
+                jsonify({"error": "Invalid JSON request body"}),
                 400,
             )
 
@@ -174,9 +169,7 @@ def get_employees():
         response_schema = EmployeeResponseSchema(many=True)
 
         return (
-            jsonify(
-                response_schema.dump(employees)
-            ),
+            jsonify(response_schema.dump(employees)),
             200,
         )
 
@@ -216,9 +209,7 @@ def get_employee(employee_id):
         response_schema = EmployeeResponseSchema()
 
         return (
-            jsonify(
-                response_schema.dump(employee)
-            ),
+            jsonify(response_schema.dump(employee)),
             200,
         )
 
@@ -297,11 +288,7 @@ def update_employee(employee_id):
             "salary",
         ]
 
-        missing_fields = [
-            field
-            for field in required_fields
-            if field not in data
-        ]
+        missing_fields = [field for field in required_fields if field not in data]
 
         if missing_fields:
 
