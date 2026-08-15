@@ -19,25 +19,25 @@ env:
   REPOSITORY: serverless-repo
 
 jobs:
+
   build:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      ##################################################
-      # Checkout Repository
-      ##################################################
+      # ============================================================
+      # Checkout
+      # ============================================================
 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      ##################################################
+      # ============================================================
       # Authenticate to Google Cloud
-      ##################################################
+      # ============================================================
 
       - name: Authenticate to Google Cloud
-        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -46,75 +46,51 @@ jobs:
           create_credentials_file: true
           export_environment_variables: true
 
-      ##################################################
+      # ============================================================
       # Setup gcloud
-      ##################################################
+      # ============================================================
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      ##################################################
-      # Verify Authentication
-      ##################################################
-
-      - name: Verify Authentication
-        run: |
-          echo "=============================="
-          echo "ACTIVE ACCOUNT"
-          echo "=============================="
-          gcloud auth list
-
-          echo ""
-          echo "=============================="
-          echo "PROJECT"
-          echo "=============================="
-          gcloud config get-value project
-
-          echo ""
-          echo "=============================="
-          echo "ACCESS TOKEN"
-          echo "=============================="
-          gcloud auth print-access-token | head -c 20
-          echo ""
-
-      ##################################################
+      # ============================================================
       # Configure Docker
-      ##################################################
+      # ============================================================
 
       - name: Configure Docker
         run: |
           gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
 
-      ##################################################
+      # ============================================================
       # Setup Docker Buildx
-      ##################################################
+      # ============================================================
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      ##################################################
+      # ============================================================
       # Setup Python
-      ##################################################
+      # ============================================================
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      ##################################################
-      # Install Dependencies
-      ##################################################
+      # ============================================================
+      # Install Python Quality Tools
+      # ============================================================
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install black flake8 pytest
 
-      ##################################################
+      # ============================================================
       # Code Quality
-      ##################################################
+      # ============================================================
 
       - name: Black Formatting Check
         run: black --check .
@@ -123,11 +99,11 @@ jobs:
         run: flake8 .
 
       - name: Run Tests
-        run: pytest || true
+        run: pytest
 
-      ##################################################
-      # Employee Service
-      ##################################################
+      # ============================================================
+      # Build Employee Service
+      # ============================================================
 
       - name: Build Employee Service
         uses: docker/build-push-action@v6
@@ -139,9 +115,9 @@ jobs:
           build-args: |
             SERVICE_NAME=employee_service
 
-      ##################################################
-      # Product Service
-      ##################################################
+      # ============================================================
+      # Build Product Service
+      # ============================================================
 
       - name: Build Product Service
         uses: docker/build-push-action@v6
@@ -153,9 +129,9 @@ jobs:
           build-args: |
             SERVICE_NAME=product_service
 
-      ##################################################
-      # Order Service
-      ##################################################
+      # ============================================================
+      # Build Order Service
+      # ============================================================
 
       - name: Build Order Service
         uses: docker/build-push-action@v6
@@ -167,9 +143,9 @@ jobs:
           build-args: |
             SERVICE_NAME=order_service
 
-      ##################################################
-      # Payment Service
-      ##################################################
+      # ============================================================
+      # Build Payment Service
+      # ============================================================
 
       - name: Build Payment Service
         uses: docker/build-push-action@v6
@@ -181,9 +157,9 @@ jobs:
           build-args: |
             SERVICE_NAME=payment_service
 
-      ##################################################
-      # Notification Service
-      ##################################################
+      # ============================================================
+      # Build Notification Service
+      # ============================================================
 
       - name: Build Notification Service
         uses: docker/build-push-action@v6
@@ -195,18 +171,18 @@ jobs:
           build-args: |
             SERVICE_NAME=notification_service
 
-      ##################################################
-      # Success
-      ##################################################
+      # ============================================================
+      # Deployment Trigger
+      # ============================================================
 
-      - name: Success
+      - name: Build Complete
         run: |
-          echo "======================================="
-          echo "All TechMart services built successfully"
-          echo "Employee Service"
-          echo "Product Service"
-          echo "Order Service"
-          echo "Payment Service"
-          echo "Notification Service"
-          echo "Images pushed to Artifact Registry"
-          echo "======================================="
+          echo "=============================================="
+          echo "TechMart CI/CD Build Completed"
+          echo "=============================================="
+          echo "Employee Service     : Built and pushed"
+          echo "Product Service      : Built and pushed"
+          echo "Order Service        : Built and pushed"
+          echo "Payment Service      : Built and pushed"
+          echo "Notification Service : Built and pushed"
+          echo "=============================================="

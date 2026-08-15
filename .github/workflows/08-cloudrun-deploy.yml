@@ -26,16 +26,16 @@ jobs:
 
     steps:
 
-      ##################################################
+      # ============================================================
       # Checkout
-      ##################################################
+      # ============================================================
 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      ##################################################
-      # Authenticate
-      ##################################################
+      # ============================================================
+      # Authenticate to Google Cloud
+      # ============================================================
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -43,91 +43,87 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
+      # ============================================================
+      # Setup gcloud
+      # ============================================================
+
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      ##################################################
-      # Configure Docker
-      ##################################################
-
-      - name: Configure Docker
-        run: |
-          gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
-
-      ##################################################
+      # ============================================================
       # Deploy Employee Service
-      ##################################################
+      # ============================================================
 
       - name: Deploy Employee Service
         run: |
           gcloud run deploy employee-service \
-          --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/employee-service:latest \
-          --region=$REGION \
-          --quiet
+            --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/employee-service:latest \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --quiet
 
-      ##################################################
+      # ============================================================
       # Deploy Product Service
-      ##################################################
+      # ============================================================
 
       - name: Deploy Product Service
         run: |
           gcloud run deploy product-service \
-          --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/product-service:latest \
-          --region=$REGION \
-          --quiet
+            --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/product-service:latest \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --quiet
 
-      ##################################################
+      # ============================================================
       # Deploy Order Service
-      ##################################################
+      # ============================================================
 
       - name: Deploy Order Service
         run: |
           gcloud run deploy order-service \
-          --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/order-service:latest \
-          --region=$REGION \
-          --quiet
+            --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/order-service:latest \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --quiet
 
-      ##################################################
+      # ============================================================
       # Deploy Payment Service
-      ##################################################
+      # ============================================================
 
       - name: Deploy Payment Service
         run: |
           gcloud run deploy payment-service \
-          --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/payment-service:latest \
-          --region=$REGION \
-          --quiet
+            --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/payment-service:latest \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --quiet
 
-      ##################################################
+      # ============================================================
       # Deploy Notification Service
-      ##################################################
+      # ============================================================
 
       - name: Deploy Notification Service
         run: |
           gcloud run deploy notification-service \
-          --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification-service:latest \
-          --region=$REGION \
-          --quiet
+            --image=asia-south1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification-service:latest \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --quiet
 
-      ##################################################
-      # Verify Services
-      ##################################################
-
-      - name: Verify Cloud Run Services
-        run: |
-          gcloud run services list --region=$REGION
-
-      ##################################################
-      # Success
-      ##################################################
+      # ============================================================
+      # Deployment Summary
+      # ============================================================
 
       - name: Deployment Successful
         run: |
-          echo "========================================"
+          echo "=============================================="
           echo "Cloud Run Deployment Successful"
-          echo "Employee Service Updated"
-          echo "Product Service Updated"
-          echo "Order Service Updated"
-          echo "Payment Service Updated"
-          echo "Notification Service Updated"
-          echo "========================================"
+          echo "=============================================="
+          echo "Employee Service     : employee-service"
+          echo "Product Service      : product-service"
+          echo "Order Service        : order-service"
+          echo "Payment Service      : payment-service"
+          echo "Notification Service : notification-service"
+          echo "=============================================="
