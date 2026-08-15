@@ -128,15 +128,25 @@ jobs:
       - name: Run Tests
         shell: bash
         run: |
+          set +e
+
           pytest -q
+
           EXIT_CODE=$?
+
+          set -e
 
           if [ "$EXIT_CODE" -eq 5 ]; then
             echo "No tests were collected. Continuing CI."
             exit 0
           fi
 
-          exit "$EXIT_CODE"
+          if [ "$EXIT_CODE" -ne 0 ]; then
+            echo "Tests failed."
+            exit "$EXIT_CODE"
+          fi
+
+          echo "Tests completed successfully."
 
       # ============================================================
       # Build Employee Service
