@@ -78,6 +78,24 @@ module "serverless_vpc_connector" {
 
 }
 
+# ============================================================
+# Cloud Router + Cloud NAT
+# ============================================================
+
+module "cloud_nat" {
+
+  source = "./modules/cloud-nat"
+
+  project_id = var.project_id
+  region     = var.region
+
+  network_self_link = module.network.self_link
+
+  depends_on = [
+    module.network
+  ]
+}
+
 # =====================================================
 # Secret Manager
 # =====================================================
@@ -491,4 +509,30 @@ module "pubsub" {
     module.project_services
   ]
 
+}
+
+# ============================================================
+# Global External HTTP Load Balancer
+# Cloud Armor + Cloud CDN + Serverless NEGs
+# ============================================================
+
+module "load_balancer" {
+  source = "./modules/load-balancer"
+
+  project_id = var.project_id
+  region     = var.region
+
+  employee_service_name     = var.employee_service_name
+  product_service_name      = var.product_service_name
+  order_service_name        = var.order_service_name
+  payment_service_name      = var.payment_service_name
+  notification_service_name = var.notification_service_name
+
+  depends_on = [
+    module.employee_cloud_run,
+    module.product_cloud_run,
+    module.order_cloud_run,
+    module.payment_cloud_run,
+    module.notification_cloud_run
+  ]
 }

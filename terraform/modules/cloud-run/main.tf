@@ -10,7 +10,7 @@ resource "google_cloud_run_v2_service" "service" {
 
   deletion_protection = false
 
-  ingress = "INGRESS_TRAFFIC_ALL"
+  ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
 
   template {
 
@@ -24,7 +24,7 @@ resource "google_cloud_run_v2_service" "service" {
     vpc_access {
 
       connector = var.vpc_connector
-      egress    = "PRIVATE_RANGES_ONLY"
+      egress    = "ALL_TRAFFIC"
     }
 
     containers {

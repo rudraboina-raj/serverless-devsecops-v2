@@ -54,9 +54,9 @@ resource "google_sql_database_instance" "postgres" {
 
     insights_config {
 
-      query_insights_enabled    = true
-      record_application_tags   = true
-      record_client_address     = true
+      query_insights_enabled  = true
+      record_application_tags = true
+      record_client_address   = true
     }
 
     # --------------------------------------------------------
